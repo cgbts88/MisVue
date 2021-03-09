@@ -30,13 +30,10 @@ class UserProfile(AbstractUser):
         ordering = ['id']
 
     def __str__(self):
-        if self.is_hk:
-            name = self.en_name
-        elif not self.cn_name:
-            name = self.en_name
+        if self.is_hk or not self.cn_name:
+            return self.en_name
         else:
-            name = "{} ({})".format(self.en_name, self.cn_name)
-        return name
+            return "{} ({})".format(self.en_name, self.cn_name)
 
 
 class Department(models.Model):
@@ -44,9 +41,9 @@ class Department(models.Model):
     部门信息
     """
 
-    sort_number = models.FloatField(null=True, blank=True, verbose_name="编号")
-    title = models.CharField(max_length=32, null=True, blank=True, verbose_name="名称")
-    simple_title = models.CharField(max_length=32, unique=True, verbose_name="简写")
+    sort = models.FloatField(null=True, blank=True, verbose_name="排序标记")
+    name = models.CharField(max_length=32, null=True, blank=True, verbose_name="名称")
+    simple_name = models.CharField(max_length=32, unique=True, verbose_name="简写")
     leader = models.ForeignKey("UserProfile", blank=True, null=True, on_delete=models.SET_NULL,
                                related_name="leader", verbose_name="主管")
     clerk = models.ForeignKey("UserProfile", blank=True, null=True, on_delete=models.SET_NULL,
@@ -59,10 +56,10 @@ class Department(models.Model):
     class Meta:
         verbose_name = "部门信息"
         verbose_name_plural = verbose_name
-        ordering = ['sort_number']
+        ordering = ['sort']
 
     def __repr__(self):
-        return str('%s') % self.simple_title
+        return str('%s') % self.simple_name
 
 
 class Position(models.Model):

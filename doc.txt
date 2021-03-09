@@ -7,7 +7,13 @@ npm -v    查看 npm 版本
 npm install -g cnpm --registry=http://registry.npm.taobao.org    安装 cnpm
 cnpm install -g vue-cli    安装 vue-cli
 vue -V    查看 vue 版本
-vue init webpack frontend    创建项目
+vue init webpack-simple frontend    创建项目
 cnpm install    运行别人的代码需要先安装依赖
 npm run dev（npm run start）    运行项目
+cd frontend
+cnpm run build
+cnpm run build    打包
+
+cnpm i elements -ui -S
+
 

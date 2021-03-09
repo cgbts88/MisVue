@@ -60,7 +60,7 @@
                     <th>{{ item }}</th>
                     <th>{% if item.gender == 'male' %}男{% elif item.gender == 'female' %}女{% else %}{% endif %}</th>
                     <th>{{ item.email }}</th>
-                    <th>{{ item.department|default_if_none:'' }}</th>
+                    <th>{{ item.department.simple_title|default_if_none:'' }}</th>
                     <th>{{ item.location|default_if_none:'' }}</th>
                     <th>{% if item.is_active is True %}启用{% else %}禁用{% endif %}</th>
                     <th>
