@@ -1,0 +1,105 @@
+{% extends "main/base-left.html" %}
+{% load static %}
+{% block content %}
+<!-- Main content -->
+<section class="content">
+    <div class="box-body">
+        <table id="dtbList" class="display" cellspacing="0" width="100%">
+            <thead>
+                <tr valign="middle" bgcolor="Gainsboro">
+                        <th></th>
+                        <th>编号</th>
+                        <th>职位</th>
+                        <th>操作</th>
+                </tr>
+            </thead>
+
+{% if not data_all %}
+         <tbody>
+                <tr>
+                    <th></th>
+                    <th>没有数据</th>
+                </tr>
+        </tbody>
+{% else %}
+        <tbody>
+            {% for item in data_all %}
+                {% if forloop.counter|divisibleby:'2' %}
+                <tr bgcolor="WhiteSmoke">{% else %}<tr>{% endif %}
+                    <th><input type="checkbox" name="checkList" value="{{ item.id }}"></th>
+                    <th>{{ item.sort_number }}</th>
+                    <th>{{ item.title }}</th>
+                    <th>
+                        {% if 'detail' in request.action_list %}
+                            <button title='详情' onclick='doDetail("{{ item.id }}")'>详情</button>
+                        {% else %}
+                            <button title='详情' onclick='doDetail("{{ item.id }}")' disabled="disabled">详情</button>
+                        {% endif %}
+                    </th>
+                </tr>
+            {% endfor %}
+        </tbody>
+
+        </table>
+    </div>
+</section>
+{% endif %}
+{% include 'main/paginator.html' %}
+{% endblock %}
+{% block javascripts %}
+<script>
+    //跳转到新増
+    $("#btnCreate").click(function () {
+        window.location.href = "{% url 'personnel:position-create' %}";
+    });
+
+    //跳转到详情
+     function doDetail(id) {
+        window.location.href = ["{% url 'personnel:position-detail' %}" + '?id=' + id];
+    }
+
+
+	//批量删除
+	$("#btnDelete").click(function() {
+		if ($("input[name='checkList']:checked").length == 0){
+			layer.msg("请选择要删除的记录");
+			return ;
+		}
+
+		var arrId= new Array();
+		$("input[name='checkList']:checked").each(function(){
+			//alert($(this).val());
+			arrId.push($(this).val());
+		});
+
+		sId=arrId.join(',');
+
+		layer.alert('确定删除吗？', {
+			title:'提示'
+			,icon: 3 //0:感叹号 1：对号 2：差号 3：问号 4：小锁 5：哭脸 6：笑脸
+			,time: 0 //不自动关闭
+			,btn: ['YES', 'NO']
+			,yes: function(index){
+			 	layer.close(index);
+			 	$.ajax({
+					type: "POST",
+					url : "{% url 'personnel:position-delete' %}",
+					data : {"id":sId, csrfmiddlewaretoken: '{{ csrf_token }}'},
+					cache: false,
+					success : function(msg) {
+						if (msg.result){
+							layer.alert("操作成功",{icon:1});
+							window.location.href = "{% url 'personnel:position-list' %}";
+						}else{
+							//alert(msg.message);
+							window.location.href = "{% url 'personnel:position-list' %}";
+						}
+						return ;
+					}
+				});
+			}
+		});
+	});
+
+</script>
+{% endblock %}

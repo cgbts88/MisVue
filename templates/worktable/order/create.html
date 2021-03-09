@@ -1,0 +1,91 @@
+{% load static %}
+{% block content %}
+<div class="box box-danger">
+	<form class="form-horizontal" id="addForm" method="post">
+		{% csrf_token %}
+		<div class="box-body">
+          <fieldset>
+            <legend>
+              <h4>日常工单</h4>
+            </legend>
+
+              {% if request.user.department.simple_title == 'EDP' %}
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">用戶</label>
+                <div class="col-sm-3">
+                  <select class="form-control select2" name="proposer_id">
+                  <option value="">--请选择用戶--</option>
+                  {% for user in users %}
+                      {% if user.id == request.user.id %}
+                  <option value="{{ user.id }}" selected>{{ user.username }} | {{ user.display_name }}</option>
+                      {% else %}
+                  <option value="{{ user.id }}">{{ user.username }} | {{ user.display_name }}</option>
+                      {% endif %}
+                  {% endfor %}
+                 </select>
+                </div>
+            </div>
+              {% else %}
+            <input name="proposer" type="hidden" value="{{ request.user.id }}"/>
+              {% endif %}
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">工单类型</label>
+                <div class="col-sm-3">
+                    <select class="form-control select2" name="type">
+                        {% for item in types %}
+                        <option value="{{ item.0 }}">{{ item.1 }}</option>
+                        {% endfor %}
+                    </select>
+                    </div>
+                <label class="col-sm-2 control-label">工单内容</label>
+                <div class="col-sm-3">
+                    <textarea rows="3" cols="50" name="content"></textarea>
+                </div>
+            </div>
+
+          </fieldset>
+
+		</div>
+		<div class="box-footer ">
+			<div class="row span7 text-center ">
+              <button type="button" id="btnSave">保存</button>
+              <button type="button" id="btnReturn">返回</button>
+			</div>
+		</div>
+
+	</form>
+</div>
+
+{% endblock %}
+<script src="{% static 'plugins/jQuery/jquery-2.2.3.min.js' %}"></script>
+<script src="{% static 'js/plugins/layer/layer.js' %}"></script>
+{% block javascripts %}
+<script>
+
+        $("#btnSave").click(function () {
+            var data = $("#addForm").serialize();
+            $.ajax({
+                type: $("#addForm").attr('method'),
+                url: "{% url 'worktable:order-create' %}",
+                data: data,
+                cache: false,
+                statusCode: {
+                    401: function () {
+                        layer.alert('错误！', {icon: 5});
+                    },
+                    201: function () {
+                        layer.alert('数据保存成功！', {icon: 1}, function (index) {
+                            window.location.href = "{% url 'worktable:order-list' %}";
+                        });
+                    },
+                }
+            });
+        });
+
+        $("#btnReturn").click(function () {
+            window.location.href = "{{ pre_page }}";
+        });
+
+</script>
+{% endblock %}

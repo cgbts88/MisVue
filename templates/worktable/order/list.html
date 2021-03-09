@@ -1,0 +1,166 @@
+{% extends "main/base-left.html" %}
+{% load static %}
+{% block content %}
+<!-- Main content -->
+        <form class="form-inline" id="queryForm">
+            <input name="page" type="hidden" value="1"/>
+            <ul>
+                <li class="form-group searchArea margin-r-5 margin-top-5">
+                  <label>部门：</label>
+                  <select class="inputText select2" name="d" id="department">
+                    <option value="">-- ALL --</option>
+                    {% for department in results.departments %}
+                    {% if department.simple_title == request.GET.d %}
+                    <option value='{{ department.simple_title }}' selected>{{ department.simple_title }}</option>
+                    {% else %}
+                    <option value='{{ department.simple_title }}'>{{ department.simple_title }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </li>
+                <li class="form-group searchArea margin-r-5 margin-top-5">
+                  <label>　　姓名：</label>
+                    {% if request.GET.u %}
+                  <input class="form-group" name="u" type="text" value="{{ request.GET.u }}" placeholder="例如：zhangsan"/>
+                    {% else %}
+                  <input class="form-group" name="u" type="text" value="" placeholder="例如：zhangsan"/>
+                    {% endif %}
+                </li>
+                <li class="form-group searchArea margin-r-5 margin-top-5">
+                  <label>　　月份：</label>
+                  <select class="form-group searchArea margin-r-5 margin-top-5" name="t">
+                        <option value="">-- ALL --</option>
+                        {% for item in results.date_list %}
+                        {% if item == request.GET.t %}
+                            <option value="{{ item }}" selected>{{ item }}</option>
+                        {% else %}
+                            <option value="{{ item }}">{{ item }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </li>
+                <li class="form-group searchArea margin-r-5 margin-top-5">
+                    　　<button type="submit" id="btnSearch">查找</button>
+                </li>
+                <li class="form-group searchArea margin-r-5 margin-top-5">
+                    　<button type="button" id="btnReset">重置</button>
+                </li>
+              </ul>
+            </form>
+
+<section class="content">
+    <div class="box-body">
+        <table id="dtbList" class="display" cellspacing="0" width="100%">
+            <thead>
+                <tr valign="middle" bgcolor="Gainsboro">
+                        <th></th>
+                        <th>单号</th>
+                        <th>发起时间</th>
+                        <th>发起人</th>
+                        <th>内容</th>
+                        <th>跟进人</th>
+                        <th>跟进时间</th>
+                        <th>类型</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                </tr>
+            </thead>
+{% if not results.data %}
+         <tbody>
+                <tr>
+                    <th></th>
+                    <th>没有数据</th>
+                </tr>
+        </tbody>
+{% else %}
+        <tbody>
+            {% for item in results.data %}
+                {% if forloop.counter|divisibleby:'2' %}
+                <tr bgcolor="WhiteSmoke">{% else %}<tr>{% endif %}
+                    <th><input type="checkbox" name="checkList" value="{{ item.id }}"></th>
+                    <th>{{ item.num }}</th>
+                    <th>{{ item.created_log.record_time }}</th>
+                    <th>{{ item.created_log.recorder }}</th>
+                    <th>{{ item.content }}</th>
+                    <th>{{ item.process_log.recorder }}</th>
+                    <th>{{ item.process_log.record_time }}</th>
+                    <th>{{ item.type }}</th>
+                    <th>{{ item.state }}</th>
+                    <th>
+                        {% if 'detail' in request.action_list %}
+                            <button title='详情' onclick="doDetail('{% url 'worktable:order-detail' item.num %}')">详情</button>
+                        {% else %}
+                            <button title='详情' onclick="doDetail('{% url 'worktable:order-detail' item.num %}')" disabled="disabled">详情</button>
+                        {% endif %}
+                    </th>
+                </tr>
+            {% endfor %}
+        </tbody>
+
+        </table>
+    </div>
+</section>
+{% include 'main/paginator.html' %}
+{% endif %}
+{% endblock %}
+<script src="{% static 'plugins/jQuery/jquery-2.2.3.min.js' %}"></script>
+<script src="{% static 'js/plugins/layer/layer.js' %}"></script>
+{% block javascripts %}
+<script>
+    //跳转到新増
+    $("#btnCreate").click(function () {
+        window.location.href = "{% url 'worktable:order-create' %}";
+    });
+
+    //跳转到详情
+     function doDetail(num) {
+        window.location.href = num;
+    }
+
+    //批量删除
+    $("#btnDelete").click(function() {
+        if ($("input[name='checkList']:checked").length == 0){
+            layer.msg("请选择要删除的记录");
+            return ;
+        }
+
+        var arrId= new Array();
+        $("input[name='checkList']:checked").each(function(){
+            //alert($(this).val());
+            arrId.push($(this).val());
+        });
+
+        sId=arrId.join(',');
+
+        layer.alert('确定删除吗？', {
+            title:'提示'
+            ,icon: 3 //0:感叹号 1：对号 2：差号 3：问号 4：小锁 5：哭脸 6：笑脸
+            ,time: 0 //不自动关闭
+            ,btn: ['YES', 'NO']
+            ,yes: function(index){
+                layer.close(index);
+                $.ajax({
+                    type: "POST",
+                    url : "{% url 'worktable:order-list' %}",
+                    data : {"id":sId, csrfmiddlewaretoken: '{{ csrf_token }}'},
+                    cache: false,
+                    statusCode: {
+                        401: function () {
+                            layer.alert('错误！', {icon: 5});
+                        },
+                        204: function () {
+                            layer.alert('删除成功！', {icon: 1}, function (index) {
+                                window.location.href = "{% url 'worktable:order-list' %}";
+                            });
+                        },
+                    }
+                });
+            }
+        });
+    });
+
+        $("#btnReset").click(function () {
+            window.location.href = "{% url 'worktable:order-list' %}";
+        })
+</script>
+{% endblock %}

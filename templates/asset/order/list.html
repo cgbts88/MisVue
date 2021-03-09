@@ -1,0 +1,99 @@
+{% extends "main/base-left.html" %}
+{% load static %}
+{% block content %}
+<!-- Main content -->
+<section class="content">
+    <div class="box-body">
+        <table id="dtbList" class="display" cellspacing="0" width="100%">
+            <thead>
+                <tr valign="middle" bgcolor="Gainsboro">
+                        <th></th>
+                        <th>单号</th>
+                        <th>电脑部转出资产</th>
+                        <th>目标部门</th>
+                        <th>目标部门转出资产</th>
+                        <th>转移时间</th>
+                </tr>
+            </thead>
+
+{% if not data_all %}
+         <tbody>
+                <tr>
+                    <th></th>
+                    <th>没有数据</th>
+                </tr>
+        </tbody>
+{% else %}
+        <tbody>
+            {% for item in data_all %}
+                {% if forloop.counter|divisibleby:'2' %}
+                <tr bgcolor="WhiteSmoke">{% else %}<tr>{% endif %}
+                    <th><input type="checkbox" name="checkList" value="{{ item.id }}"></th>
+                    <th>{{ item.num }}</th>
+                    <th>{{ item.edp_asset|default_if_none:'' }}</th>
+                    <th>{{ item.target_department }}</th>
+                    <th>{{ item.target_asset|default_if_none:'' }}</th>
+                    <th>{{ item.transfer_time|date:"Y-m-d H:i" }}</th>
+                </tr>
+            {% endfor %}
+        </tbody>
+
+        </table>
+    </div>
+</section>
+{% endif %}
+{% include 'main/paginator.html' %}
+{% endblock %}
+<script src="{% static 'plugins/jQuery/jquery-2.2.3.min.js' %}"></script>
+<script src="{% static 'js/plugins/layer/layer.js' %}"></script>
+{% block javascripts %}
+<script>
+    //跳转到选择部门
+    $("#btnCreate").click(function () {
+        window.location.href = "{% url 'asset:order-select' %}";
+    });
+
+	//批量删除
+	$("#btnDelete").click(function() {
+		if ($("input[name='checkList']:checked").length == 0){
+			layer.msg("请选择要删除的记录");
+			return ;
+		}
+
+		var arrId= new Array();
+		$("input[name='checkList']:checked").each(function(){
+			//alert($(this).val());
+			arrId.push($(this).val());
+		});
+
+		sId=arrId.join(',');
+
+		layer.alert('确定删除吗？', {
+			title:'提示'
+			,icon: 3 //0:感叹号 1：对号 2：差号 3：问号 4：小锁 5：哭脸 6：笑脸
+			,time: 0 //不自动关闭
+			,btn: ['YES', 'NO']
+			,yes: function(index){
+			 	layer.close(index);
+			 	$.ajax({
+					type: "POST",
+					url : "{% url 'asset:order-delete' %}",
+					data : {"id":sId, csrfmiddlewaretoken: '{{ csrf_token }}'},
+					cache: false,
+					success : function(msg) {
+						if (msg.result){
+							layer.alert("操作成功",{icon:1});
+							window.location.href = "{% url 'asset:order-list' %}";
+						}else{
+							//alert(msg.message);
+							window.location.href = "{% url 'asset:order-list' %}";
+						}
+						return ;
+					}
+				});
+			}
+		});
+	});
+
+</script>
+{% endblock %}

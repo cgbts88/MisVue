@@ -1,0 +1,13 @@
+pip freeze > requirements.txt    导出依赖列表
+pip install -r requirements.txt	 安装依赖
+
+安装 node.js ，从官网下载
+node -v    查看 node.js 版本
+npm -v    查看 npm 版本
+npm install -g cnpm --registry=http://registry.npm.taobao.org    安装 cnpm
+cnpm install -g vue-cli    安装 vue-cli
+vue -V    查看 vue 版本
+vue init webpack frontend    创建项目
+cnpm install    运行别人的代码需要先安装依赖
+npm run dev（npm run start）    运行项目
+

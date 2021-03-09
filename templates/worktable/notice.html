@@ -1,0 +1,77 @@
+{% extends "main/base-left.html" %}
+{% load static %}
+{% block content %}
+{{ sys }}
+{% if data_all %}
+    <div class="box-body">
+        <table id="dtbList" class="display" cellspacing="0" width="100%">
+            <thead>
+                <tr valign="middle" bgcolor="Gainsboro">
+                        <th>姓名</th>
+                        <th>电话</th>
+                        <th>IP</th>
+                        <th>邮箱</th>
+                        <th>部门</th>
+                        <th>位置</th>
+                </tr>
+            </thead>
+
+        <tbody>
+            {% for item in data_all %}
+                {% if forloop.counter|divisibleby:'2' %}
+                <tr bgcolor="WhiteSmoke">{% else %}<tr>
+                {% endif %}
+                    <th>{{ item.name }}</th>
+                    <th>{{ item.ext_num }}</th>
+                    <th>{{ item.ip }}</th>
+                    <th>{{ item.email }}</th>
+                    <th>{{ item.dept }}</th>
+                    <th>{{ item.location__area }}</th>
+                </tr>
+            {% endfor %}
+        </tbody>
+
+        </table>
+    </div>
+{% endif %}
+{% include 'main/paginator.html' %}
+{% endblock %}
+<script src="{% static 'plugins/jQuery/jquery-2.2.3.min.js' %}"></script>
+<script src="{% static 'js/plugins/layer/layer.js' %}"></script>
+{% block javascripts %}
+<script>
+    //跳转到新増
+    $("#btnCreate").click(function () {
+        window.location.href = "{% url 'worktable:order-create' %}";
+    });
+
+    //删除
+    function doDelete(id) {
+        layer.alert('确定删除吗？', {
+            title: '提示'
+            , icon: 3 //0:感叹号 1：对号 2：差号 3：问号 4：小锁 5：哭脸 6：笑脸
+            , time: 0 //不自动关闭
+            , btn: ['YES', 'NO']
+            , yes: function (index) {
+                layer.close(index);
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'worktable:order-delete' %}",
+                    data: {"id": id, csrfmiddlewaretoken: '{{ csrf_token }}'},
+                    cache: false,
+                    success: function (msg) {
+                        if (msg.result) {
+                            layer.alert('删除成功', {icon: 1});
+                            window.location.href = "{% url 'worktable:order-list' %}";
+                        } else {
+                            //alert(msg.message);
+                            layer.alert('删除失败', {icon: 2});
+                        }
+                        return;
+                    }
+                });
+            }
+        });
+    }
+</script>
+{% endblock %}

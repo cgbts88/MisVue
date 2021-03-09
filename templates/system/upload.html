@@ -1,0 +1,67 @@
+{% load static %}
+{% block content %}
+<div class="box box-danger">
+	<form class="form-horizontal" id="addForm" method="post">
+		{% csrf_token %}
+        <input id="id" name="id" type="hidden" value="{{ request.GET.id }}"/>
+        <input id="previous" name="previous" type="hidden" value="{{ request.GET.previous }}"/>
+        <div class="box-body">
+          <fieldset>
+            <legend>
+              <h4>文件上传</h4>
+            </legend>
+            <div class="form-group has-feedback">
+                <div class="col-sm-8">
+                    <div class="file-loading">
+                        <input id="file" name="file" class="form-control" type="file"/>
+                    </div>
+                </div>
+            </div>
+          </fieldset>
+        </div>
+		<div class="box-footer ">
+			<div class="row span7 text-center ">
+              <button type="button" id="btnSave">上传</button>
+              <button type="button" id="btnReturn"
+               onclick="javascript:window.location.href='{{ pre_page }}'"
+                >返回</button>
+			</div>
+		</div>
+    </form>
+</div>
+
+{% endblock %}
+
+<script src="{% static 'plugins/jQuery/jquery-2.2.3.min.js' %}"></script>
+<script src="{% static 'js/plugins/layer/layer.js' %}"></script>
+{% block javascripts %}
+<script>
+
+	$("#btnSave").click(function(){
+		var data =new FormData($("#addForm")[0]);
+		$.ajax({
+			type: $("#addForm").attr('method'),
+			url : "{% url 'system:upload' %}",
+			data : data,
+            processData: false,
+            contentType: false,
+            async: false,
+            cache: false,
+            success: function (msg) {
+                if (msg.result == 'success' ) {
+                    layer.alert('上传成功！', {icon: 1}, function (index) {
+                        window.location.href = "{{ pre_page }}";
+                    });
+                } else if (msg.result == 'refuse'){
+					layer.alert('请上传正确格式的文件！', {icon: 5});
+				} else {
+                    layer.alert(msg.error, {icon: 5});
+                    //$('errorMessage').html(msg.message)
+                }
+                return;
+            }
+        });
+    });
+</script>
+
+{% endblock %}

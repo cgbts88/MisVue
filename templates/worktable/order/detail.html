@@ -1,0 +1,166 @@
+{% load static %}
+{% block content %}
+<div class="box box-danger">
+    <form class="form-horizontal" id="addForm" method="post">
+        {% csrf_token %}
+        <div class="box-body">
+          <fieldset>
+            <legend>
+              <h4>日常工单</h4>
+            </legend>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">单号</label>
+                <div class="col-sm-3">
+                    <input type="text" value="{{ result.num }}" readonly="readonly"/>
+                    </div>
+            </div>
+
+                          <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">工单类型</label>
+                <div class="col-sm-3">
+                    <select class="form-control select2" name="type">
+                        {% for item in types %}
+                            {% if result.type == item.0 %}
+                                <option value="{{ item.0 }}" selected>{{ item.1 }}</option>
+                            {% else %}
+                                <option value="{{ item.0 }}">{{ item.1 }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    </div>
+                <label class="col-sm-2 control-label">工单内容</label>
+                <div class="col-sm-3">
+                    <textarea rows="3" cols="50" name="content">{{ result.content }}</textarea>
+                </div>
+            </div>
+
+          </fieldset>
+
+        </div>
+        <div class="box-footer ">
+            <div class="row span7 text-center ">
+              {% for action in actions_list %}
+                {% if action.disabled == 'disabled' %}
+                    <button type="button" id="btn{{ action.en_code }}" disabled="disabled">{{ action.cn_code }}</button>
+                {% else %}
+                    <button type="button" id="btn{{ action.en_code }}" >{{ action.cn_code }}</button>
+                {% endif %}
+              {% endfor %}
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<div class="box-body">
+    <fieldset>
+        <legend>
+            <h4>操作记录</h4>
+        </legend>
+
+        <div class="form-group has-feedback">
+            {% for log in logs %}
+            <label class="col-sm-2 control-label">记录时间：{{ log.record_time }}&nbsp;&nbsp;&nbsp;</label>
+            <label class="col-sm-2 control-label">记录类型：{{ log.full_record_type }}&nbsp;&nbsp;&nbsp;</label>
+            <label class="col-sm-2 control-label">记录人：{{ log.recorder }}&nbsp;&nbsp;&nbsp;</label>
+            <div class="col-sm-3">{{ log.remark|safe }}</div>
+            <br>
+            {% endfor %}
+        </div>
+
+    </fieldset>
+</div>
+
+{% endblock %}
+<script src="{% static 'plugins/jQuery/jquery-2.2.3.min.js' %}"></script>
+<script src="{% static 'js/plugins/layer/layer.js' %}"></script>
+{% block javascripts %}
+<script>
+
+        $("#btnEdit").click(function () {
+            var data = $("#addForm").serialize();
+            $.ajax({
+                type: "POST",
+                url: "{% url 'worktable:order-detail' result.num %}",
+                data: data,
+                cache: false,
+                statusCode: {
+                    400: function () {
+                        layer.alert('错误 400！', {icon: 5});
+                    },
+                    200: function () {
+                        layer.alert('操作成功！', {icon: 1}, function (index) {
+                        window.location.href = "{% url 'worktable:order-list' %}";
+                        });
+                    },
+                    403: function () {
+                        layer.alert('错误 403！', {icon: 5});
+                    },
+                }
+            });
+        });
+
+        $("#btnProcess").click(function () {
+            $.ajax({
+                type: "POST",
+                url: "{% url 'worktable:order-detail' result.num %}",
+                data: {csrfmiddlewaretoken: '{{ csrf_token }}', action:'process'},
+                cache: false,
+                statusCode: {
+                    400: function () {
+                    layer.alert('错误！', {icon: 5});
+                    },
+                    200: function () {
+                        layer.alert('操作成功！！', {icon: 1}, function (index) {
+                        window.location.href = "{% url 'worktable:order-detail' result.num %}";
+                        });
+                    },
+                }
+            });
+        });
+
+        $("#btnFinish").click(function () {
+            $.ajax({
+                type: "POST",
+                url: "{% url 'worktable:order-detail' result.num %}",
+                data: {csrfmiddlewaretoken: '{{ csrf_token }}', action:'finish'},
+                cache: false,
+                statusCode: {
+                    401: function () {
+                    layer.alert('错误！', {icon: 5});
+                    },
+                    200: function () {
+                        layer.alert('操作成功！！！', {icon: 1}, function (index) {
+                        window.location.href = "{% url 'worktable:order-list' %}";
+                        });
+                    },
+                }
+            });
+        });
+
+        $("#btnConfirm").click(function () {
+            $.ajax({
+                type: "POST",
+                url: "{% url 'worktable:order-detail' result.num %}",
+                data: {csrfmiddlewaretoken: '{{ csrf_token }}', action:'confirm'},
+                cache: false,
+                statusCode: {
+                    401: function () {
+                    layer.alert('错误！', {icon: 5});
+                    },
+                    200: function () {
+                        layer.alert('操作成功！', {icon: 1}, function (index) {
+                        window.location.href = "{% url 'worktable:order-list' %}";
+                        });
+                    },
+                }
+            });
+        });
+
+        $("#btnReturn").click(function () {
+            window.location.href = "{{ pre_page }}";
+        });
+
+</script>
+{% endblock %}

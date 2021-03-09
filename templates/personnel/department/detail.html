@@ -1,0 +1,118 @@
+{% load static %}
+{% block content %}
+<div class="box box-danger">
+	<form class="form-horizontal" id="addForm" method="post">
+		{% csrf_token %}
+		<input type="hidden" name='id' value="{{ department.id }}" />
+		<div class="box-body">
+          <fieldset>
+            <legend>
+              <h4>部门信息</h4>
+            </legend>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">编号</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" name="sort_number" value="{{ department.sort_number }}" />
+                </div>
+                <label class="col-sm-2 control-label">简称</label>
+                <div class="col-sm-3">
+                    <input class="form-control" name="simple_title" type="text" placeholder="例如：EDP" value="{{ department.simple_title }}" />
+                </div>
+            </div>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">名称</label>
+                <div class="col-sm-3">
+                    <input class="form-control" name="title" type="text" placeholder="例如：电脑部" value="{{ department.title|default_if_none:'' }}" />
+                </div>
+                <label class="col-sm-2 control-label">部门负责人</label>
+                <div class="col-sm-3">
+                    <select class="form-control select2" name="leader">
+                        <option value="">---请选择用户---</option>
+                        {% for user in users %}
+                        {% if department.leader.id == user.id %}
+                            <option value="{{ user.id }}" selected>{{ user.username }} | {{ user }}</option>
+                        {% else %}
+                            <option value="{{ user.id }}">{{ user.username }} | {{ user }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">文员</label>
+                <div class="col-sm-3">
+                    <select class="form-control select2" name="clerk">
+                        <option value="">---请选择用户---</option>
+                        {% for user in users %}
+                        {% if department.clerk.id == user.id %}
+                            <option value="{{ user.id }}" selected>{{ user.username }} | {{ user }}</option>
+                        {% else %}
+                            <option value="{{ user.id }}">{{ user.username }} | {{ user }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <label class="col-sm-2 control-label">资产责任人</label>
+                <div class="col-sm-3">
+                    <select class="form-control select2" name="asset_owner">
+                        <option value="">---请选择用户---</option>
+                        {% for user in users %}
+                        {% if department.asset_owner.id == user.id %}
+                            <option value="{{ user.id }}" selected>{{ user.username }} | {{ user }}</option>
+                        {% else %}
+                            <option value="{{ user.id }}">{{ user.username }} | {{ user }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+          </fieldset>
+
+		</div>
+		<div class="box-footer ">
+			<div class="row span7 text-center ">
+              <button type="button" id="btnSave">保存</button>
+              <button type="button" id="btnReturn">返回</button>
+			</div>
+		</div>
+
+	</form>
+</div>
+
+{% endblock %}
+<script src="{% static 'plugins/jQuery/jquery-2.2.3.min.js' %}"></script>
+<script src="{% static 'js/plugins/layer/layer.js' %}"></script>
+{% block javascripts %}
+<script>
+
+        $("#btnSave").click(function () {
+            var data = $("#addForm").serialize();
+            $.ajax({
+                type: $("#addForm").attr('method'),
+                url: "{% url 'personnel:department-detail' %}",
+                data: data,
+                cache: false,
+                success: function (msg) {
+                    if (msg.result) {
+                        layer.alert('数据保存成功！', {icon: 1}, function (index) {
+                            window.location.href = "{% url 'personnel:department-list' %}";
+                        });
+                    } else {
+                        layer.alert('数据保存失败', {icon: 5});
+                        //$('errorMessage').html(msg.message)
+                    }
+                    return;
+                }
+            });
+        });
+
+        $("#btnReturn").click(function () {
+            window.location.href = "{{ pre_page }}";
+        });
+
+</script>
+{% endblock %}

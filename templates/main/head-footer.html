@@ -1,0 +1,54 @@
+{% extends "main/base-static.html" %}
+{% load static %}
+
+{% block main %}
+    <!-- Main Header -->
+    <header class="main-header col-md-12">
+
+        <!-- Logo -->
+            <span class="logo-lg"><b><i class="fa fa-globe"></i>EWIG Group.</b></span>
+
+        <!-- Header Navbar -->
+        <nav class="navbar navbar-static-top" role="navigation">
+            <!-- Sidebar toggle button-->
+            <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+                <span class="sr-only"><!--Toggle navigation--></span>
+            </a>
+            <div class="collapse navbar-collapse pull-left" id="navbar-collapse">
+                {% for menu in request.top_menu|dictsort:'sort_number' %}
+                    <ul class="nav navbar-nav">
+                        <li {% ifequal menu.status True %}class="active" {% endifequal %}>
+                        <a href="{{ menu.url }}" id="{{ menu.code }}">{{ menu.title | default_if_none:"" }}</a>
+                        </li>
+                    </ul>
+                {% endfor %}
+            </div>
+
+                <div class="navbar-custom-menu">
+                    <!-- Navbar Right Menu -->
+                    <ul class="nav navbar-nav">
+
+                             <!-- User Account Menu -->
+                            <li class="dropdown user user-menu">
+                            {% if request.user.is_authenticated %}
+                                <a href="/logout/" class="btn">{{ request.user }} - 登出</a>
+                            {% else %}
+                                <a href="/login/" class="btn">登陆</a>
+                            {% endif %}
+                        </li>
+
+                    </ul>
+                </div>
+        </nav>
+    </header>
+    <!-- Left side column. contains the logo and sidebar -->
+    {% block middle %}
+
+    {% endblock %}
+
+    <!-- Main Footer -->
+    <footer class="main-footer text-center">
+        <strong><!-- EDP - Management Information System .Version1.0.1 --></strong>
+    </footer>
+
+{% endblock %}

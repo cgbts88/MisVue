@@ -1,0 +1,51 @@
+{% load static %}
+{% block content %}
+<div class="box box-danger">
+	<form class="form-horizontal" id="addForm" method="POST">
+		<div class="box-body">
+          <fieldset>
+            <legend>
+              <h4>选择目标部门</h4>
+            </legend>
+
+            <div class="form-group has-feedback">
+                <div class="col-sm-3">
+                    <select class="form-control select2" name="id" id="id">
+                        {% for item in data_all %}
+                        <option value="{{ item.simple_title }}">{{ item }}</option>
+                        {% endfor %}
+                    </select>
+                    </div>
+            </div>
+
+          </fieldset>
+
+		</div>
+		<div class="box-footer ">
+			<div class="row span7 text-center ">
+              <button type="button" id="btnNext">下一步</button>
+              <button type="button" id="btnReturn">返回</button>
+			</div>
+		</div>
+
+	</form>
+</div>
+
+{% endblock %}
+<script src="{% static 'plugins/jQuery/jquery-2.2.3.min.js' %}"></script>
+<script src="{% static 'js/plugins/layer/layer.js' %}"></script>
+{% block javascripts %}
+<script>
+
+
+    $("#btnNext").click(function () {
+        var department_id = $("#id").children('option:selected').val(); //这就是selected的值
+        window.location = ["{% url 'asset:order-create' %}" + '?department=' + department_id]
+       });
+
+    $("#btnReturn").click(function () {
+        window.location.href = "{% url 'asset:order-list' %}";
+    });
+
+</script>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% load static %}
+{% block content %}
+<div class="box box-danger">
+	<form class="form-horizontal" id="addForm" method="post">
+		{% csrf_token %}
+        <input type="hidden" value="{{ user.id }}" name="id">
+		<div class="box-body">
+          <fieldset>
+            <legend>
+              <h4><font color="blue">{{ user }}</font>的权限</h4>
+            </legend>
+          {% for permit in permits %}
+            <div class="form-group has-feedback">
+                {% if permit.id in permits_checked %}
+                <input name="permit_list" type="checkbox" value="{{ permit.id }}" checked="checked" />
+                {% else %}
+                <input name="permit_list" type="checkbox" value="{{ permit.id }}" />
+                {% endif %}
+                <label class="col-sm-2 control-label">{{ permit.title }}</label>
+            </div>
+              <br>
+          {% endfor %}
+          </fieldset>
+
+		</div>
+		<div class="box-footer ">
+			<div class="row span7 text-center ">
+              <button type="button" id="btnSave">修改</button>
+              <button type="button" id="btnUpload">上传申请表</button>
+              <button type="button" id="btnReturn">返回</button>
+			</div>
+		</div>
+
+	</form>
+</div>
+
+<div class="box-body">
+    <fieldset>
+        <legend>
+            <h4>操作记录</h4>
+        </legend>
+
+        <div class="form-group has-feedback">
+            {% for record in records %}
+                <label class="col-sm-2 control-label">记录人：{{ record.recorder }}&nbsp;&nbsp;&nbsp;</label>
+                <label class="col-sm-2 control-label">记录时间：{{ record.record_time }}&nbsp;&nbsp;&nbsp;</label>
+                <label class="col-sm-2 control-label">记录类型：{{ record.get_record_type_display }}</label>
+                <div class="col-sm-3">
+                    {{ record.remark|safe }}
+                </div>
+                <br>
+            {% endfor %}
+        </div>
+
+    </fieldset>
+</div>
+{% endblock %}
+<script src="{% static 'plugins/jQuery/jquery-2.2.3.min.js' %}"></script>
+<script src="{% static 'js/plugins/layer/layer.js' %}"></script>
+{% block javascripts %}
+<script>
+
+        $("#btnSave").click(function () {
+            var data = $("#addForm").serialize();
+            $.ajax({
+                type: $("#addForm").attr('method'),
+                url: "{% url 'personnel:user-permit' %}",
+                data: data,
+                cache: false,
+                success: function (msg) {
+                    if (msg.result) {
+                        layer.alert('数据保存成功！', {icon: 1}, function (index) {
+                            window.location.href = "{% url 'personnel:user-list' %}";
+                        });
+                    } else {
+                        layer.alert(msg.error, {icon: 5});
+                        //$('errorMessage').html(msg.message)
+                    }
+                    return;
+                }
+            });
+        });
+
+        $("#btnUpload").click(function () {
+            window.location.href = "{% url 'system:upload' %}?previous=permit&id={{ user.id }}";
+        });
+
+        $("#btnReturn").click(function () {
+            window.location.href = "{% url 'personnel:user-list' %}";
+        });
+</script>
+{% endblock %}

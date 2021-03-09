@@ -1,0 +1,175 @@
+{% extends "main/base-left.html" %}
+{% load static %}
+{% block content %}
+<div class="box col-md-12">
+	<form class="form-horizontal" id="addForm" method="post">
+		{% csrf_token %}
+		<input type="hidden" name='id' value="{{ data.id }}" />
+		<input type="hidden" name='username' value="{{ data.username }}" />
+		<input type="hidden" name='roles' value="{{ role.id }}" />
+		<div class="box-body">
+          <fieldset>
+            <legend>
+              <h4>基本信息</h4>
+            </legend>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">英文</label>
+                <div class="col-sm-3">
+                    <input class="form-control" name="en_name" type="text" placeholder="例如：zhang san"  value="{{ data.en_name }}" />
+                </div>
+                <label class="col-sm-2 control-label">姓名</label>
+                <div class="col-sm-3">
+                    <input class="form-control" name="cn_name" type="text" placeholder="例如：张三"  value="{{ data.cn_name }}" />
+                </div>
+            </div>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">工号</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" name="work_card" value="{{ data.work_card|default:'' }}" />
+                </div>
+                <label class="col-sm-2 control-label">生日</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control pull-right form_datetime" name="birthday" value="{{ data.birthday|date:'Y-m-d'|default:'' }}" />
+                </div>
+            </div>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">性别</label>
+                <div class="col-sm-3">
+                    <label class="control-label">
+                        {% if data.gender == 'male' %}
+                            <input type="radio" class="minimal" name="gender" value="male" checked>
+                        {% else %}
+                            <input type="radio" class="minimal" name="gender" value="male" >
+                        {% endif %}男　
+                    </label>
+                    <label class="control-label">
+                        {% if data.gender == 'female' %}
+                            <input type="radio" class="minimal" name="gender"  value="female" checked>
+                        {% else %}
+                            <input type="radio" class="minimal" name="gender"  value="female">
+                        {% endif %}女
+                    </label>
+                </div>
+            </div>
+
+            <legend>
+              <h4>联系信息</h4>
+            </legend>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">座机</label>
+                <div class="col-sm-3">
+                    <input class="form-control" name="ext_num" type="text" value="{{ data.ext_num|default:'' }}" />
+                </div>
+                <label class="col-sm-2 control-label">手机</label>
+                <div class="col-sm-3">
+                    <input class="form-control" name="mobile" type="text" value="{{ data.mobile|default:'' }}" />
+                </div>
+            </div>
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">邮箱</label>
+                <div class="col-sm-3">
+                    <input class="form-control" name="email" type="text" value="{{ data.email|default:'' }}" disabled/>
+                </div>
+                <label class="col-sm-2 control-label">位置</label>
+                <div class="col-sm-3">
+                    <select class="form-control select2" name="location">
+                  <option value="">--请选项位置--</option>
+                  {% for location in locations %}
+                        {% if data.location.id == location.id %}
+                            <option value="{{ location.area }}" selected>{{ location.area }}</option>
+                        {% else %}
+                            <option value="{{ location.area }}">{{ location.area }}</option>
+                        {% endif %}
+                  {% endfor %}
+                 </select>
+                </div>
+            </div>
+            <legend>
+              <h4>职员信息</h4>
+            </legend>
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">入职日期</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control pull-right form_datetime" name="joined_date" value="{{ data.joined_date|date:'Y-m-d'|default:'' }}" />
+                </div>
+                <label class="col-sm-2 control-label">部门</label>
+                <div class="col-sm-3">
+                  <select class="form-control select2" name="department" readonly>
+                  <option value="">--请选择部门--</option>
+                  {% for department in departments %}
+                      {% if data.department.id == department.id %}
+                        <option value="{{ department.simple_title }}" selected>
+                      {% else %}
+                        <option value="{{ department.simple_title }}">
+                      {% endif %}{{ department.simple_title }}</option>
+                  {% endfor %}
+                 </select>
+                 </div>
+
+            </div>
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">职位</label>
+                <div class="col-sm-3">
+                  <select class="form-control select2" name="position" readonly>
+                  <option value="">--请选择职位--</option>
+                  {% for position in positions %}
+                      {% if data.position.id == position.id %}
+                        <option value="{{ position.id }}" selected>{{ position.title }}</option>
+                      {% else %}
+                        <option value="{{ position.id }}">{{ position.title }}</option>
+                      {% endif %}
+                  {% endfor %}
+                 </select>
+                 </div>
+            </div>
+
+          </fieldset>
+
+		</div>
+		<div class="box-footer ">
+			<div class="row span7 text-center ">
+              <button type="button" id="btnSave">保存</button>
+              <button type="button" id="btnPasswordChange">修改密码</button>
+			</div>
+		</div>
+
+	</form>
+</div>
+
+{% endblock %}
+<script src="{% static 'plugins/jQuery/jquery-2.2.3.min.js' %}"></script>
+<script src="{% static 'js/plugins/layer/layer.js' %}"></script>
+{% block javascripts %}
+<script>
+
+        $("#btnSave").click(function () {
+            var data = $("#addForm").serialize();
+            $.ajax({
+                type: $("#addForm").attr('method'),
+                url: "{% url 'worktable:person' %}",
+                data: data,
+                cache: false,
+                success: function (msg) {
+                    if (msg.result) {
+                        layer.alert('数据保存成功！', {icon: 1}, function (index) {
+                            window.location.href = "{% url 'worktable:person' %}";
+                        });
+                    } else {
+                        layer.alert(msg.error, {icon: 5});
+                        //$('errorMessage').html(msg.message)
+                    }
+                    return;
+                }
+            });
+        });
+
+        $("#btnPasswordChange").click(function () {
+            window.location.href = "{% url 'worktable:passwdchange' %}";
+        });
+
+</script>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% load static %}
+{% block content %}
+<div class="box box-danger">
+	<form class="form-horizontal" id="addForm" method="post">
+		{% csrf_token %}
+		<div class="box-body">
+          <fieldset>
+            <legend>
+              <h4>入库信息</h4>
+            </legend>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">ACC编号</label>
+                <div class="col-sm-3">
+                    <input class="form-control" name="acc_num" type="text" placeholder="例如：D/PC/PC/0001" value="" />
+                </div>
+                <label class="col-sm-2 control-label">EDP编号</label>
+                <div class="col-sm-3">
+                    <input class="form-control" name="edp_num" type="text" placeholder="例如：DGDC001" value="" />
+                </div>
+            </div>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">序列号</label>
+                <div class="col-sm-3">
+                    <input class="form-control" name="sn" type="text" placeholder="例如：XYZABC01" value="" />
+                </div>
+                <label class="col-sm-2 control-label">MAC地址</label>
+                <div class="col-sm-3">
+                    <input class="form-control" name="mac" type="text" placeholder="例如：00-00-00-00" value="" />
+                </div>
+            </div>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">型号</label>
+                <div class="col-sm-3">
+                    <select class="form-control select2" name="model">
+                        <option value="">--请选择型号--</option>
+                        {% for item in attributes %}
+                        <option value="{{ item.id }}">{{ item.brand }} {{ item.model }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">人民币</label>
+                <div class="col-sm-3">
+                    <input class="form-control" name="rmb" type="text" value="" />
+                </div>
+                <label class="col-sm-2 control-label">港币</label>
+                <div class="col-sm-3">
+                    <input class="form-control" name="hkd" type="text" value="" />
+                </div>
+            </div>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">购买日期</label>
+                <div class="col-sm-3">
+                    <input class="form-control" name="buy_date" type="text" placeholder="例如：2020-01-01" value="" />
+                </div>
+                <label class="col-sm-2 control-label">到保日期</label>
+                <div class="col-sm-3">
+                    <input class="form-control" name="warranty_date" type="text" placeholder="例如：2023-01-01" value="" />
+                </div>
+            </div>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">库存部门</label>
+                <div class="col-sm-3">
+                    <select class="form-control select2" name="department">
+                        <option value="">--请选择部门--</option>
+                        {% for item in departments %}
+                        <option value="{{ item.simple_title }}">{{ item.simple_title }}</option>
+                        {% endfor %}
+                    </select>
+                    </div>
+                <label class="col-sm-2 control-label">资产状态</label>
+                <div class="col-sm-3">
+                    <select class="form-control select2" name="state">
+                        {% for item in stock_status %}
+                        <option value="{{ item.0 }}">{{ item.1 }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">备注</label>
+                <div class="col-sm-3">
+                    <textarea rows="2" cols="30" name="remark"></textarea>
+                </div>
+            </div>
+
+          </fieldset>
+
+		</div>
+		<div class="box-footer ">
+			<div class="row span7 text-center ">
+              <button type="button" id="btnSave">保存</button>
+              <button type="button" id="btnReturn">返回</button>
+			</div>
+		</div>
+
+	</form>
+</div>
+
+{% endblock %}
+<script src="{% static 'plugins/jQuery/jquery-2.2.3.min.js' %}"></script>
+<script src="{% static 'js/plugins/layer/layer.js' %}"></script>
+{% block javascripts %}
+<script>
+
+        $("#btnSave").click(function () {
+            var data = $("#addForm").serialize();
+            $.ajax({
+                type: $("#addForm").attr('method'),
+                url: "{% url 'asset:stock-create' %}",
+                data: data,
+                cache: false,
+                success: function (msg) {
+                    if (msg.result) {
+                        layer.alert('数据保存成功！', {icon: 1}, function (index) {
+                            window.location.href = "{% url 'asset:stock-list' %}";
+                        });
+                    } else {
+                        layer.alert(msg.error, {icon: 5});
+                        //$('errorMessage').html(msg.message)
+                    }
+                    return;
+                }
+            });
+        });
+
+        $("#btnReturn").click(function () {
+            window.location.href = "{{ pre_page }}";
+        });
+
+</script>
+{% endblock %}

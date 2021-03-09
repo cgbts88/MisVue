@@ -1,0 +1,32 @@
+<center>
+<ul class="pagination" style="margin: 5px 0 10px 0">
+  {% if previous %}
+    <li><a href="{{ previous }}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+  {% else %}
+    <li class="disabled"><a href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+  {% endif %}
+
+  {% for page in pages %}
+  {% if page.link is None %}
+    <li class="disabled"><a href=""><span aria-hidden="true">{{ page.num }}</span></a></li>
+  {% else %}
+    <li><a href="{{ page.link }}" aria-label="Previous"><span aria-hidden="true">{{ page.num }}</span></a></li>
+  {% endif %}
+  {% endfor %}
+
+  {% if next %}
+    <li>
+      <a href="{{ next }}" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+  {% else %}
+    <li class="disabled">
+      <a href="#" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+  {% endif %}
+</ul>
+
+</center>

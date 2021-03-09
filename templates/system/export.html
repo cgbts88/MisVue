@@ -1,0 +1,69 @@
+{% load static %}
+{% block content %}
+<div class="box box-danger">
+	<form class="form-horizontal" id="addForm" method="post">
+		{% csrf_token %}
+        <div class="box-body">
+          <fieldset>
+            <legend>
+              <h4>导出</h4>
+            </legend>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">按月份导出</label>
+                <div class="col-sm-3">
+                    <select class="form-control select2" name="date">
+                        <option value="">---请选择月份---</option>
+                        {% for item in date_list %}
+                            <option value="{{ item }}">{{ item }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+          </fieldset>
+        </div>
+		<div class="box-footer ">
+			<div class="row span7 text-center ">
+              <button type="button" id="btnExport">导出</button>
+              <button type="button" id="btnReturn">返回</button>
+			</div>
+		</div>
+    </form>
+</div>
+{% endblock %}
+
+<script src="{% static 'plugins/jQuery/jquery-2.2.3.min.js' %}"></script>
+<script src="{% static 'js/plugins/layer/layer.js' %}"></script>
+{% block javascripts %}
+<script>
+
+	$("#btnExport").click(function(){
+		var data =new FormData($("#addForm")[0]);
+		$.ajax({
+			type: $("#addForm").attr('method'),
+			url : "{% url 'system:export' %}",
+			data : data,
+            processData: false,
+            contentType: false,
+            cache: false,
+            success: function (msg) {
+                if (msg.result) {
+                    layer.alert('导出成功,已经发送邮件！', {icon: 1}, function (index) {
+                        window.location.href = "{% url 'system:export' %}";
+                    });
+                } else {
+                    layer.alert(msg.error, {icon: 5});
+                    //$('errorMessage').html(msg.message)
+                }
+                return;
+            }
+        });
+    });
+
+        $("#btnReturn").click(function () {
+            window.location.href = "../";
+        });
+</script>
+
+{% endblock %}

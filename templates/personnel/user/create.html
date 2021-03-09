@@ -1,0 +1,169 @@
+{% load static %}
+{% block content %}
+<div class="box box-danger">
+	<form class="form-horizontal" id="addForm" method="post">
+		{% csrf_token %}
+		<div class="box-body">
+          <fieldset>
+            <legend>
+              <h4>基本信息</h4>
+            </legend>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">英文</label>
+                <div class="col-sm-3">
+                    <input class="form-control" name="en_name" type="text" placeholder="例如：Zhang San" value="" />
+                </div>
+                <label class="col-sm-2 control-label">姓名</label>
+                <div class="col-sm-3">
+                    <input class="form-control" name="cn_name" type="text" placeholder="例如：张三" value="" />
+                </div>
+            </div>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">工号</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" name="work_card" value="" />
+                </div>
+                <label class="col-sm-2 control-label">生日</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control pull-right form_datetime" name="birthday" placeholder="例如：1990-01-01" value="" />
+                </div>
+            </div>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">性别</label>
+                <div class="col-sm-3">
+                    <label class="control-label">
+                      <input type="radio" class="minimal" name="gender" value="male" checked>男
+                    </label>
+                    <label class="control-label">
+                      <input type="radio" class="minimal" name="gender"  value="female">女
+                    </label>
+                </div>
+                <label class="col-sm-2 control-label">状态</label>
+                <div class="col-sm-3">
+                    <label class="control-label">
+                      <input type="radio" class="minimal" name="is_active" value="True" checked>启用
+                    </label>
+                    <label class="control-label">
+                      <input type="radio" class="minimal" name="is_active" value="False">禁用
+                    </label>
+                </div>
+            </div>
+
+            <legend>
+              <h4>联系信息</h4>
+            </legend>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">座机</label>
+                <div class="col-sm-3">
+                    <input class="form-control" name="ext_num" type="text" value="" />
+                </div>
+                <label class="col-sm-2 control-label">手机</label>
+                <div class="col-sm-3">
+                    <input class="form-control" name="mobile" type="text" value="" />
+                </div>
+            </div>
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">邮箱</label>
+                <div class="col-sm-3">
+                    <input class="form-control" name="email" type="text" value="" />
+                </div>
+                <label class="col-sm-2 control-label">位置</label>
+                <div class="col-sm-3">
+                    <select class="form-control select2" name="location">
+                  <option value="">--请选项位置--</option>
+                  {% for location in locations %}
+                  <option value="{{ location.id }}">{{ location.area }}</option>
+                  {% endfor %}
+                 </select>
+                </div>
+            </div>
+            <legend>
+              <h4>职员信息</h4>
+            </legend>
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">入职日期</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control pull-right form_datetime" name="joined_date" placeholder="例如：2020-01-01" value="" />
+                </div>
+                <label class="col-sm-2 control-label">部门</label>
+                <div class="col-sm-3">
+                  <select class="form-control select2" name="department">
+                  <option value="">--请选择部门--</option>
+                  {% for department in departments %}
+                  <option value="{{ department.id }}">{{ department.simple_title }}</option>
+                  {% endfor %}
+                 </select>
+                 </div>
+
+            </div>
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">职位</label>
+                <div class="col-sm-3">
+                  <select class="form-control select2" name="position">
+                  <option value="">--请选择职位--</option>
+                  {% for position in positions %}
+                  <option value="{{ position.id }}">{{ position.title }}</option>
+                  {% endfor %}
+                 </select>
+                 </div>
+                <label class="col-sm-2 control-label"></label>
+                <div class="col-sm-3">
+                    <label class="control-label">
+                      <input type="radio" class="minimal" name="is_hk"  value="False" checked>DG
+                    </label>
+                    <label class="control-label">
+                      <input type="radio" class="minimal" name="is_hk"  value="True">HK
+                    </label>
+                </div>
+            </div>
+
+          </fieldset>
+
+		</div>
+		<div class="box-footer ">
+			<div class="row span7 text-center ">
+              <button type="button" id="btnSave">保存</button>
+              <button type="button" id="btnReturn">返回</button>
+			</div>
+		</div>
+
+	</form>
+</div>
+
+{% endblock %}
+<script src="{% static 'plugins/jQuery/jquery-2.2.3.min.js' %}"></script>
+<script src="{% static 'js/plugins/layer/layer.js' %}"></script>
+{% block javascripts %}
+<script>
+
+        $("#btnSave").click(function () {
+            var data = $("#addForm").serialize();
+            $.ajax({
+                type: $("#addForm").attr('method'),
+                url: "{% url 'personnel:user-create' %}",
+                data: data,
+                cache: false,
+                success: function (msg) {
+                    if (msg.result) {
+                        layer.alert('数据保存成功！', {icon: 1}, function (index) {
+                            window.location.href = "{% url 'personnel:user-list' %}";
+                        });
+                    } else {
+                        layer.alert(msg.error, {icon: 5});
+                        //$('errorMessage').html(msg.message)
+                    }
+                    return;
+                }
+            });
+        });
+
+        $("#btnReturn").click(function () {
+            window.location.href = "{{ pre_page }}";
+        });
+
+</script>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "main/head-footer.html" %}
+{% load static %}
+
+{% block middle %}
+<div class="col-md-12">
+<aside class="main-sidebar">
+
+    <!-- sidebar: style can be found in sidebar.less -->
+    <section class="sidebar">
+
+      <!-- Sidebar Menu -->
+      <ul class="nav navbar-nav">
+
+      {% for menu in request.reveal_menu|dictsort:'sort_number' %}
+        {% if not menu.url %}
+        <li class="treeview" id="{{ menu.code }}">
+          <a href=""><i class="{{ menu.icon }}"></i> <span>{{ menu.title }}</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+            {% for sub in menu.sub_menu|dictsort:'sort_number' %}
+            <li id="{{ sub.code }}">
+                <a href="{{ sub.url }}"><i class="fa fa-caret-right"></i>{{ sub.title }}</a></li>
+            {% endfor %}
+          </ul>
+        </li>
+        {% else %}
+          <li id="{{ menu.code }}">
+          <a href="{{ menu.url }}"><i class="{{ menu.icon }}"></i> <span>{{ menu.title }}</span></a>
+          </li>
+        {% endif %}
+      {% endfor %}
+
+      </ul>
+      <!-- /.sidebar-menu -->
+    </section>
+    <!-- /.sidebar -->
+  </aside>
+<!-- Content Header (Page header) -->
+{% if request.action_list %}
+<section class="content-header margin-bottom">
+  <br clear="all"/>
+  <ol class="breadcrumb">
+    {% if 'create' in request.action_list %}<li><button title='新増' id='btnCreate'>新増</button></li>{% endif %}
+    {% if 'delete' in request.action_list %}<li><button title='删除' id='btnDelete'>删除</button></li>{% endif %}
+    {% if 'done' in request.action_list %}<li><button title='报废' id='btnDone'>报废</button></li>{% endif %}
+    {% if 'cancel' in request.action_list %}<li><button title='闲置' id='btnCancel'>闲置</button></li>{% endif %}
+  </ol>
+</section>
+{% endif %}
+
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+
+  {% block content %}
+
+
+  {% endblock %}
+
+</div>
+<!-- /.content-wrapper -->
+</div>
+{% endblock %}

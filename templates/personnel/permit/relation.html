@@ -1,0 +1,40 @@
+{% load static %}
+{% block content %}
+<div class="box box-danger">
+	<form class="form-horizontal" id="addForm" method="post">
+		{% csrf_token %}
+        <input type="hidden" name="id" value="{{ permit.id }}">
+		<div class="box-body">
+          <fieldset>
+            <legend>
+                <h4>{{ permit.title }} 的人员名单</h4>
+            </legend>
+            <div class="form-group has-feedback">
+                <div>
+                    {% for item in users %}
+                        <label>{{ item.en_name }}（{{ item.cn_name }}）</label>
+                    {% endfor %}
+                </div>
+            </div>
+          </fieldset>
+		</div>
+		<div class="box-footer ">
+			<div class="row span7 text-center ">
+                <button type="button" id="btnReturn" name="btnReturn">返回</button>
+            </div>
+		</div>
+	</form>
+</div>
+{% endblock %}
+
+<script src="{% static 'plugins/jQuery/jquery-2.2.3.min.js' %}"></script>
+<script src="{% static 'js/plugins/layer/layer.js' %}"></script>
+{% block javascripts %}
+    <script>
+        $("#btnReturn").click(function () {
+            window.location.href = "{{ pre_page }}";
+        });
+
+    </script>
+
+{% endblock %}

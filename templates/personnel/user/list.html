@@ -1,0 +1,225 @@
+{% extends "main/base-left.html" %}
+{% load static %}
+{% block content %}
+<!-- Main content -->
+        <form class="form-inline" id="queryForm">
+            <ul>
+                <li class="form-group searchArea margin-r-5 margin-top-5">
+                  <label>部门：</label>
+                  <select class="inputText select2" name="department" id="department">
+                    <option value="">-- ALL --</option>
+                    {% for department in departments %}
+                    <option value='{{ department.id }}'>{{ department.simple_title }}</option>
+                    {% endfor %}
+                  </select>
+                </li>
+                <li class="form-group searchArea margin-r-5 margin-top-5">
+                  <label>　　姓名：</label>
+                  <input class="form-group" name="username" type="text" value="" placeholder="例如：zhangsan"/>
+                </li>
+                <li class="form-group searchArea margin-r-5 margin-top-5">
+                    　　<button type="submit" id="btnSearch">查找</button>
+                </li>
+                <li class="form-group searchArea margin-r-5 margin-top-5">
+                    　<button type="button" id="btnReset">重置</button>
+                </li>
+              </ul>
+            </form>
+
+<section class="content">
+    <div class="box-body">
+        <table id="dtbList" class="display" cellspacing="0" width="100%">
+            <thead>
+                <tr valign="middle" bgcolor="Gainsboro">
+                    <th></th>
+                    <th>工号</th>
+                    <th>姓名</th>
+                    <th>性别</th>
+                    <th>邮箱</th>
+                    <th>部门</th>
+                    <th>位置</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+
+{% if not data_all %}
+         <tbody>
+                <tr>
+                    <th></th>
+                    <th>没有数据</th>
+                </tr>
+        </tbody>
+{% else %}
+        <tbody>
+            {% for item in data_all %}
+                {% if forloop.counter|divisibleby:'2' %}
+                <tr bgcolor="WhiteSmoke">{% else %}<tr>{% endif %}
+                    <th><input type="checkbox" name="checkList" value="{{ item.id }}"></th>
+                    <th>{{ item.work_card|default_if_none:'' }}</th>
+                    <th>{{ item }}</th>
+                    <th>{% if item.gender == 'male' %}男{% elif item.gender == 'female' %}女{% else %}{% endif %}</th>
+                    <th>{{ item.email }}</th>
+                    <th>{{ item.department|default_if_none:'' }}</th>
+                    <th>{{ item.location|default_if_none:'' }}</th>
+                    <th>{% if item.is_active is True %}启用{% else %}禁用{% endif %}</th>
+                    <th>
+                        {% if 'detail' in request.action_list %}
+                            <button title='详情' onclick='doDetail("{{ item.id }}")'>详情</button>
+                        {% else %}
+                            <button title='详情' onclick='doDetail("{{ item.id }}")' disabled="disabled">详情</button>
+                        {% endif %}
+                        {% if 'permit' in request.action_list %}
+                            <button title='权限' onclick='doPermit("{{ item.id }}")'>权限</button>
+                        {% else %}
+                            <button title='权限' onclick='doPermit("{{ item.id }}")' disabled="disabled">权限</button>
+                        {% endif %}
+                        {% if 'reset' in request.action_list %}
+                            <button title='重置密码' onclick='doReset("{{ item.id }}")'>重置密码</button>
+                        {% else %}
+                            <button title='重置密码' onclick='doReset("{{ item.id }}")' disabled="disabled">重置密码</button>
+                        {% endif %}
+                        {% if 'active' in request.action_list %}
+                            <button title='状态' onclick='doActive("{{ item.id }}")'>
+                                {% if item.is_active is True %}禁用{% else %}启用{% endif %}
+                            </button>
+                        {% else %}
+                            <button title='状态' onclick='doActive("{{ item.id }}")' disabled="disabled">
+                                {% if item.is_active is True %}禁用{% else %}启用{% endif %}
+                            </button>
+                        {% endif %}
+                    </th>
+                </tr>
+            {% endfor %}
+        </tbody>
+
+        </table>
+    </div>
+</section>
+{% endif %}
+{% include 'main/paginator.html' %}
+{% endblock %}
+<script src="{% static 'plugins/jQuery/jquery-2.2.3.min.js' %}"></script>
+<script src="{% static 'js/plugins/layer/layer.js' %}"></script>
+{% block javascripts %}
+<script>
+    //跳转到新増
+    $("#btnCreate").click(function () {
+        window.location.href = "{% url 'personnel:user-create' %}";
+    });
+
+    //跳转到详情
+     function doDetail(id) {
+        window.location.href = ["{% url 'personnel:user-detail' %}" + '?id=' + id];
+    }
+
+    //跳转到权限
+     function doPermit(id) {
+        window.location.href = ["{% url 'personnel:user-permit' %}" + '?id=' + id];
+    }
+
+    //跳转到重置密码
+    function doReset(id) {
+        layer.alert('确定重置密码吗？', {
+            title: '提示'
+            , icon: 3 //0:感叹号 1：对号 2：差号 3：问号 4：小锁 5：哭脸 6：笑脸
+            , time: 0 //不自动关闭
+            , btn: ['YES', 'NO']
+            , yes: function (index) {
+                layer.close(index);
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'personnel:user-reset' %}",
+                    data: {"id": id, csrfmiddlewaretoken: '{{ csrf_token }}'},
+                    cache: false,
+                    success: function (msg) {
+                        if (msg.result) {
+                            layer.alert('操作成功', {icon: 1});
+                            window.location.href = "{% url 'personnel:user-list' %}";
+                        } else {
+                            //alert(msg.message);
+                            layer.alert('操作失败', {icon: 2});
+                        }
+                        return;
+                    }
+                });
+            }
+        });
+    }
+
+    //跳转到启用禁用状态
+    function doActive(id) {
+        layer.alert('确定操作吗？', {
+            title: '提示'
+            , icon: 3 //0:感叹号 1：对号 2：差号 3：问号 4：小锁 5：哭脸 6：笑脸
+            , time: 0 //不自动关闭
+            , btn: ['YES', 'NO']
+            , yes: function (index) {
+                layer.close(index);
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'personnel:user-active' %}",
+                    data: {"id": id, csrfmiddlewaretoken: '{{ csrf_token }}'},
+                    cache: false,
+                    success: function (msg) {
+                        if (msg.result) {
+                            layer.alert('操作成功', {icon: 1});
+                            window.location.href = "{% url 'personnel:user-list' %}";
+                        } else {
+                            //alert(msg.message);
+                            layer.alert('操作失败', {icon: 2});
+                        }
+                        return;
+                    }
+                });
+            }
+        });
+    }
+
+	//批量删除
+	$("#btnDelete").click(function() {
+		if ($("input[name='checkList']:checked").length == 0){
+			layer.msg("请选择要删除的记录");
+			return ;
+		}
+
+		var arrId= new Array();
+		$("input[name='checkList']:checked").each(function(){
+			//alert($(this).val());
+			arrId.push($(this).val());
+		});
+
+		sId=arrId.join(',');
+
+		layer.alert('确定删除吗？', {
+			title:'提示'
+			,icon: 3 //0:感叹号 1：对号 2：差号 3：问号 4：小锁 5：哭脸 6：笑脸
+			,time: 0 //不自动关闭
+			,btn: ['YES', 'NO']
+			,yes: function(index){
+			 	layer.close(index);
+			 	$.ajax({
+					type: "POST",
+					url : "{% url 'personnel:user-delete' %}",
+					data : {"id":sId, csrfmiddlewaretoken: '{{ csrf_token }}'},
+					cache: false,
+					success : function(msg) {
+						if (msg.result){
+							layer.alert("操作成功",{icon:1});
+							window.location.href = "{% url 'personnel:user-list' %}";
+						}else{
+							//alert(msg.message);
+							window.location.href = "{% url 'personnel:user-list' %}";
+						}
+						return ;
+					}
+				});
+			}
+		});
+	});
+
+        $("#btnReset").click(function () {
+	        window.location.href = "{% url 'personnel:user-list' %}";
+        })
+</script>
+{% endblock %}

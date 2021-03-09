@@ -1,0 +1,108 @@
+{% extends "main/base-left.html" %}
+{% load static %}
+{% block content %}
+    <div class="box-body col-md-12">
+        <form class="form-inline" id="queryForm">
+            <ul>
+                <li class="form-group searchArea margin-r-5 margin-top-5">
+                  <label>部门：</label>
+                  <select class="inputText select2" name="department" id="department">
+                    <option value="">-- ALL --</option>
+                    {% for department in departments %}
+                    <option value='{{ department.id }}'>{{ department.simple_title }}</option>
+                    {% endfor %}
+                  </select>
+                </li>
+                <li class="form-group searchArea margin-r-5 margin-top-5">
+                  <label>　　姓名：</label>
+                  <input class="form-group" name="username" type="text" value="" placeholder="例如：zhangsan"/>
+                </li>
+                <li class="form-group searchArea margin-r-5 margin-top-5">
+                  <label>　　电话：</label>
+                  <input class="form-group" name="ext_num" type="text" value="" />
+                </li>
+                <li class="form-group searchArea margin-r-5 margin-top-5">
+                  <label>　　IP：</label>
+                  <input class="form-group" name="ip" type="text" value="" />
+                </li>
+                <li class="form-group searchArea margin-r-5 margin-top-5">
+                    　　<button type="submit" id="btnSearch">查找</button>
+                </li>
+                <li class="form-group searchArea margin-r-5 margin-top-5">
+                    　<button type="button" id="btnReset">重置</button>
+                </li>
+              </ul>
+            </form>
+
+        <table id="dtbList" class="display" cellspacing="0" width="100%">
+            <thead>
+                <tr valign="middle" bgcolor="Gainsboro">
+                        <th></th>
+                        <th>姓名</th>
+                        <th>电话</th>
+                        <th>IP</th>
+                        <th>邮箱</th>
+                        <th>部门</th>
+                        <th>位置</th>
+                </tr>
+            </thead>
+
+{% if not data_all %}
+         <tbody>
+                <tr>
+                    <th></th>
+                    <th>没有数据</th>
+                </tr>
+        </tbody>
+{% else %}
+        <tbody>
+            {% for item in data_all %}
+                {% if forloop.counter|divisibleby:'2' %}
+                <tr bgcolor="WhiteSmoke">{% else %}<tr>
+                {% endif %}
+                    <th><input type="checkbox" name="checkList" value="{{ item.id }}"></th>
+                    <th>{{ item.name }}</th>
+                    <th>{{ item.ext_num }}</th>
+                    <th>{{ item.ip }}</th>
+                    <th>{{ item.email }}</th>
+                    <th>{{ item.department__simple_title|default_if_none:'' }}</th>
+                    <th>{{ item.location__area|default_if_none:'' }}</th>
+                </tr>
+            {% endfor %}
+        </tbody>
+{% endif %}
+
+        </table>
+    </div>
+{% include 'main/paginator.html' %}
+{% endblock %}
+<script src="{% static 'plugins/jQuery/jquery-2.2.3.min.js' %}"></script>
+<script src="{% static 'js/plugins/layer/layer.js' %}"></script>
+{% block javascripts %}
+<script>
+        $("#btnSearch").click(function(){
+		var data = $("#queryForm").serialize();
+		$.ajax({
+			type: $("#queryForm").attr('method'),
+			url : "{% url 'worktable:phonebook' %}",
+			data : data,
+			cache: false,
+			success : function(msg) {
+				if (msg.status == 'success'){
+					layer.alert('数据保存成功！', {icon: 1},function(index){
+                                    window.location.reload();
+                    });
+				}else if(msg.status =='fail'){
+					layer.alert('数据保存失败', {icon: 5});
+                    //$('errorMessage').html(msg.message)
+				}
+				return ;
+			}
+		});
+	});
+
+        $("#btnReset").click(function () {
+	        window.location.href = "{% url 'worktable:phonebook' %}";
+        })
+</script>
+{% endblock %}

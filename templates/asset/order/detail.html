@@ -1,0 +1,173 @@
+{% load static %}
+{% block content %}
+<div class="box box-danger">
+	<form class="form-horizontal" id="addForm" method="post">
+		{% csrf_token %}
+		<input type="hidden" name='id' value="{{ workorder.id }}" />
+		<div class="box-body">
+          <fieldset>
+            <legend>
+              <h4>资产管理</h4>
+            </legend>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">单号</label>
+                <div class="col-sm-3">
+                    <input type="text" name='num' value="{{ workorder.num }}" readonly="readonly"/>
+                    </div>
+            </div>
+
+                          <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">工单类型</label>
+                <div class="col-sm-3">
+                    <select class="form-control select2" name="type">
+                        {% for item in types %}
+                            {% if workorder.type == item.0 %}
+                                <option value="{{ item.0 }}" selected>{{ item.1 }}</option>
+                            {% else %}
+                                <option value="{{ item.0 }}">{{ item.1 }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    </div>
+                <label class="col-sm-2 control-label">工单内容</label>
+                <div class="col-sm-3">
+                    <textarea rows="3" cols="50" name="content">{{ workorder.content }}</textarea>
+                </div>
+            </div>
+
+          </fieldset>
+
+		</div>
+		<div class="box-footer ">
+			<div class="row span7 text-center ">
+              {% for action in actions_list %}
+                {% if action.disabled == 'disabled' %}
+                    <button type="button" id="btn{{ action.en_code }}" disabled="disabled">{{ action.cn_code }}</button>
+                {% else %}
+                    <button type="button" id="btn{{ action.en_code }}" >{{ action.cn_code }}</button>
+                {% endif %}
+              {% endfor %}
+			</div>
+		</div>
+
+	</form>
+</div>
+
+<div class="box-body">
+    <fieldset>
+        <legend>
+            <h4>操作记录</h4>
+        </legend>
+
+        <div class="form-group has-feedback">
+            {% for record in records reversed %}
+                <label class="col-sm-2 control-label">记录人：{{ record.recorder }}&nbsp;&nbsp;&nbsp;</label>
+                <label class="col-sm-2 control-label">记录时间：{{ record.record_time }}&nbsp;&nbsp;&nbsp;</label>
+                <label class="col-sm-2 control-label">记录类型：{{ record.get_record_type_display }}</label>
+                <div class="col-sm-3">
+                    {{ record.desc|safe }}
+                </div>
+                <br>
+            {% endfor %}
+        </div>
+
+    </fieldset>
+</div>
+
+{% endblock %}
+<script src="{% static 'plugins/jQuery/jquery-2.2.3.min.js' %}"></script>
+<script src="{% static 'js/plugins/layer/layer.js' %}"></script>
+{% block javascripts %}
+<script>
+
+        $("#btnEdit").click(function () {
+            var data = $("#addForm").serialize();
+            $.ajax({
+                type: $("#addForm").attr('method'),
+                url: "{% url 'asset:order-detail' %}",
+                data: data,
+                cache: false,
+                success: function (msg) {
+                    if (msg.result) {
+                        layer.alert('数据保存成功！', {icon: 1}, function (index) {
+                            window.location.href = "{% url 'asset:order-list' %}";
+                        });
+                    } else {
+                        layer.alert(msg.error, {icon: 5});
+                        //$('errorMessage').html(msg.message)
+                    }
+                    return;
+                }
+            });
+        });
+
+        $("#btnProcess").click(function () {
+            var data = $("#addForm").serialize();
+            $.ajax({
+                type: $("#addForm").attr('method'),
+                url: "{% url 'asset:order-process' %}",
+                data: data,
+                cache: false,
+                success: function (msg) {
+                    if (msg.result) {
+                        layer.alert('正在处理！', {icon: 1}, function (index) {
+                            window.location.href = "{% url 'asset:order-list' %}";
+                        });
+                    } else {
+                        layer.alert(msg.error, {icon: 5});
+                        //$('errorMessage').html(msg.message)
+                    }
+                    return;
+                }
+            });
+        });
+
+        $("#btnFinish").click(function () {
+            var data = $("#addForm").serialize();
+            $.ajax({
+                type: $("#addForm").attr('method'),
+                url: "{% url 'asset:order-finish' %}",
+                data: data,
+                cache: false,
+                success: function (msg) {
+                    if (msg.result) {
+                        layer.alert('处理完成！', {icon: 1}, function (index) {
+                            window.location.href = "{% url 'asset:order-list' %}";
+                        });
+                    } else {
+                        layer.alert(msg.error, {icon: 5});
+                        //$('errorMessage').html(msg.message)
+                    }
+                    return;
+                }
+            });
+        });
+
+        $("#btnConfirm").click(function () {
+            var data = $("#addForm").serialize();
+            $.ajax({
+                type: $("#addForm").attr('method'),
+                url: "{% url 'asset:order-confirm' %}",
+                data: data,
+                cache: false,
+                success: function (msg) {
+                    if (msg.result) {
+                        layer.alert('确认完成！', {icon: 1}, function (index) {
+                            window.location.href = "{% url 'asset:order-list' %}";
+                        });
+                    } else {
+                        layer.alert(msg.error, {icon: 5});
+                        //$('errorMessage').html(msg.message)
+                    }
+                    return;
+                }
+            });
+        });
+
+        $("#btnReturn").click(function () {
+            window.location.href = "{{ pre_page }}";
+        });
+
+</script>
+{% endblock %}

@@ -1,0 +1,129 @@
+{% load static %}
+{% block content %}
+<div class="box box-danger">
+	<form class="form-horizontal" id="addForm" method="post">
+		{% csrf_token %}
+        <input type="hidden" name="id" value="{{ networkdevice.id }}">
+		<div class="box-body">
+          <fieldset>
+            <legend>
+              <h4>网络设备</h4>
+            </legend>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">设备编号</label>
+                <div class="col-sm-3">
+                    <select class="form-control select2" name="stock">
+                        {% if networkdevice.stock.id %}
+                        <option  value="{{ networkdevice.stock.id }}">{{ networkdevice.stock.edp_num }} | {{ networkdevice.stock.acc_num }}</option>
+                        {% else %}
+                        <option value="">--请选择--</option>
+                        {% endif %}
+                        {% for device in devices %}
+                        <option value="{{ device.id }}">{{ device.edp_num }} | {{ device.acc_num }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <label class="col-sm-2 control-label">设备名</label>
+                <div class="col-sm-3">
+                    <input class="form-control" name="device_name" type="text" placeholder="例如：DGEDP001" value="{{ networkdevice.device_name }}" />
+                </div>
+            </div>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">IP地址</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" name="ip" placeholder="例如：192.1.2.99" value="{{ networkdevice.ip|default_if_none:'' }}" />
+                </div>
+                <label class="col-sm-2 control-label">登陆名</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" name="login_name" placeholder="例如：prod001" value="{{ networkdevice.login_name|default_if_none:'' }}" />
+                </div>
+            </div>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">登录密码</label>
+                <div class="col-sm-3">
+                    <input type="password" class="form-control" name="login_pwd" value="{{ networkdevice.login_pwd|default_if_none:'' }}" />
+                </div>
+                <label class="col-sm-2 control-label">使用人</label>
+                <div class="col-sm-3">
+                    <select class="form-control select2" name="asset_user">
+                        <option value="">--请选择--</option>
+                        {% for user in users %}
+                        {% if networkdevice.asset_user.id == user.id %}
+                            <option value="{{ user.id }}" selected>{{ user.username }} | {{ user }}</option>
+                        {% else %}
+                            <option value="{{ user.id }}">{{ user.username }} | {{ user }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group has-feedback">
+                <label class="col-sm-2 control-label">责任人</label>
+                <div class="col-sm-3">
+                    <select class="form-control select2" name="asset_owner">
+                        <option value="">--请选择--</option>
+                        {% for user in users %}
+                        {% if networkdevice.asset_owner.id == user.id %}
+                            <option value="{{ user.id }}" selected>{{ user.username }} | {{ user }}</option>
+                        {% else %}
+                            <option value="{{ user.id }}">{{ user.username }} | {{ user }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <label class="col-sm-2 control-label">备注</label>
+                <div class="col-sm-3">
+                    <textarea rows="2" cols="30" name="desc">{{ networkdevice.desc }}</textarea>
+                </div>
+            </div>
+
+          </fieldset>
+
+		</div>
+		<div class="box-footer ">
+			<div class="row span7 text-center ">
+              <button type="button" id="btnSave">保存</button>
+              <button type="button" id="btnReturn">返回</button>
+			</div>
+		</div>
+
+	</form>
+</div>
+
+{% endblock %}
+<script src="{% static 'plugins/jQuery/jquery-2.2.3.min.js' %}"></script>
+<script src="{% static 'js/plugins/layer/layer.js' %}"></script>
+{% block javascripts %}
+<script>
+
+        $("#btnSave").click(function () {
+            var data = $("#addForm").serialize();
+            $.ajax({
+                type: $("#addForm").attr('method'),
+                url: "{% url 'asset:networkdevice-detail' %}",
+                data: data,
+                cache: false,
+                success: function (msg) {
+                    if (msg.result) {
+                        layer.alert('数据保存成功！', {icon: 1}, function (index) {
+                            window.location.href = "{% url 'asset:networkdevice-list' %}";
+                        });
+                    } else {
+                        layer.alert(msg.error, {icon: 5});
+                        //$('errorMessage').html(msg.message)
+                    }
+                    return;
+                }
+            });
+        });
+
+        $("#btnReturn").click(function () {
+            window.location.href = "{{ pre_page }}";
+        });
+
+</script>
+{% endblock %}
