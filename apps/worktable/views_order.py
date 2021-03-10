@@ -18,7 +18,8 @@ from apps.worktable.models import WorkOrder, WorkOrderLog
 from apps.users.models import Department
 
 from apps.worktable.serializers import WorkOrderSerializer, WorkOrderListSerializer, WorkOrderLogSerializer
-from apps.users.serializers import UserForSelectSerializer, DepartmentForSelectSerializer
+from apps.users.serializers.users import UserForSelectSerializer
+from apps.users.serializers.department import DepartmentForSelectSerializer
 
 from apps.worktable.permissions import IsOwnerOrReadOnly
 from apps.worktable.filters import WorkOrderFilter

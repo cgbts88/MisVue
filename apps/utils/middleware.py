@@ -27,7 +27,7 @@ class MenuCollection(MiddlewareMixin):
             user = self.get_user(request)
         try:
             menus = user.roles.values(
-                'permissions__sort_number',
+                'permissions__sort',
                 'permissions__id',
                 'permissions__title',
                 'permissions__url',

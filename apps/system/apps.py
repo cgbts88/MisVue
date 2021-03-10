@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class RbacConfig(AppConfig):
-    name = 'system'
+class SystemConfig(AppConfig):
+    name = 'apps.system'

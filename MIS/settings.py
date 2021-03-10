@@ -56,8 +56,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'apps.utils.middleware.MenuCollection',
-    'apps.utils.middleware.ActionMiddleware',
+    # 'apps.utils.middleware.MenuCollection',
+    # 'apps.utils.middleware.ActionMiddleware',
     # 'apps.utils.middleware.RbacMiddleware',
 ]
 
@@ -67,7 +67,7 @@ ROOT_URLCONF = 'MIS.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os_path.join(BASE_DIR, 'templates')],
+        'DIRS': ['frontend/dist'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -80,6 +80,10 @@ TEMPLATES = [
         },
     },
 ]
+
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [os_path.join(BASE_DIR, 'frontend/dist/static')]
 
 WSGI_APPLICATION = 'MIS.wsgi.application'
 
@@ -135,11 +139,6 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
-STATIC_URL = '/static/'
-
-STATICFILES_DIRS = [os_path.join(BASE_DIR, 'static')]
-
-
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = os_path.join(BASE_DIR, 'media')
@@ -173,3 +172,9 @@ REST_FRAMEWORK = {
     # 'PAGE_SIZE': 20,
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
 }
+
+# redis 设置
+REDIS_HOST = 'localhost'
+REDIS_PORT = 16379
+REDIS_DB = 0
+REDIS_PASSWORD = None
