@@ -83,7 +83,7 @@ TEMPLATES = [
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = [os_path.join(BASE_DIR, 'frontend/dist/static')]
+STATICFILES_DIRS = [BASE_DIR, 'frontend/dist/static']
 
 WSGI_APPLICATION = 'MIS.wsgi.application'
 

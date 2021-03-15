@@ -99,7 +99,8 @@ def send_work_order_message(num):
     work_order = WorkOrder.objects.get(num=num)
 
     from_email = 'Robot<robot@qsmfg.com>'
-    edp_mail = 'chengeng@qsmfg.com'    # 'DGEDP<dgedp@qsmfg.com>'
+    # edp_mail = 'DGEDP<dgedp@qsmfg.com>'
+    edp_mail = 'Chen Geng(陳庚)<chengeng@qsmfg.com>'
     proposer_mail = "{0}<{1}>".format(work_order.proposer, work_order.proposer.email)
 
     content = ''
@@ -130,7 +131,7 @@ def send_work_order_message(num):
     subject = "{0}　{1}".format(work_order.num, work_order.get_state_display())
     body = r"""
     <h3>{0}</h3>
-    <p>申請單號：<a href="http://192.1.2.99/worktable/order/detail/?num={1}">{1}</a></p>
+    <p>申請單號：<a href="http://192.1.2.99/worktable/order/num={1}">{1}</a></p>
     <p>發起時間：{2}</p>
     <p>使用人：{3}</p>
     <p>分機號：{4}</p>
@@ -202,7 +203,7 @@ def send_asset_order_message(num):
 
     subject = "{0}　{1}".format(asset_order.num, "资产转移")
     body = r"""
-    <p>申請單號：<a href="http://192.1.2.99/asset/order/detail/?num={0}">{0}</a></p>
+    <p>申請單號：<a href="http://192.1.2.99/asset/order/num={0}">{0}</a></p>
     <p>發起時間：{1}</p>
     <p>EDP轉出：{2}</p>
     <p>{3}轉出：{4}</p>
