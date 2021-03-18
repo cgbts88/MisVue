@@ -17,7 +17,7 @@ from apps.utils.mailer import send_work_order_message
 from apps.worktable.models import WorkOrder, WorkOrderLog
 from apps.users.models import Department
 
-from apps.worktable.serializers import WorkOrderSerializer, WorkOrderListSerializer, WorkOrderLogSerializer
+from apps.worktable.serializers.workorder import WorkOrderSerializer, WorkOrderListSerializer, WorkOrderLogSerializer
 from apps.users.serializers.users import UserForSelectSerializer
 from apps.users.serializers.department import DepartmentForSelectSerializer
 
@@ -38,8 +38,8 @@ class WorkOrderView(ModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     filter_class = WorkOrderFilter
 
-    renderer_classes = (renderers.TemplateHTMLRenderer, renderers.JSONRenderer)
-    template_name = 'worktable/order/list.html'
+    # renderer_classes = (renderers.TemplateHTMLRenderer, renderers.JSONRenderer)
+    # template_name = 'worktable/order/list.html'
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -61,7 +61,7 @@ class WorkOrderView(ModelViewSet):
         while date_start > date_end:
             date_list.append(str(date_start.year) + '-' + str(date_start.month).zfill(2))
             date_start -= relativedelta(months=1)
-        departments = DepartmentForSelectSerializer(Department.objects.values('id', 'simple_title'), many=True)
+        departments = DepartmentForSelectSerializer(Department.objects.values('id', 'simple_name'), many=True)
         results = {
             'departments': departments.data,
             'date_list': date_list,
@@ -93,8 +93,8 @@ class WorkOrderCreateView(ModelViewSet):
     serializer_class = WorkOrderSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
-    renderer_classes = (renderers.TemplateHTMLRenderer, renderers.JSONRenderer)
-    template_name = 'worktable/order/create.html'
+    # renderer_classes = (renderers.TemplateHTMLRenderer, renderers.JSONRenderer)
+    # template_name = 'worktable/order/create.html'
 
     def get(self, *args, **kwargs):
         users = User.objects.all().exclude(Q(username='admin') | Q(email=''))
@@ -127,8 +127,8 @@ class WorkOrderDetailView(ModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly,)
     lookup_field = 'num'
 
-    renderer_classes = (renderers.TemplateHTMLRenderer, renderers.JSONRenderer)
-    template_name = 'worktable/order/detail.html'
+    # renderer_classes = (renderers.TemplateHTMLRenderer, renderers.JSONRenderer)
+    # template_name = 'worktable/order/detail.html'
 
     record_type = None
 

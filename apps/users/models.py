@@ -67,18 +67,18 @@ class Position(models.Model):
     职位信息
     """
 
-    sort_number = models.FloatField(null=True, blank=True, verbose_name="编号")
-    title = models.CharField(max_length=32, unique=True, verbose_name='名称')
+    sort = models.FloatField(null=True, blank=True, verbose_name="编号")
+    name = models.CharField(max_length=32, unique=True, verbose_name='名称')
 
     objects = models.Manager()
 
     class Meta:
         verbose_name = "职位信息"
         verbose_name_plural = verbose_name
-        ordering = ['sort_number']
+        ordering = ['sort']
 
     def __str__(self):
-        return self.title
+        return self.name
 
 
 class Location(models.Model):
@@ -86,7 +86,7 @@ class Location(models.Model):
     位置信息
     """
 
-    sort_number = models.FloatField(null=True, blank=True, verbose_name="编号")
+    sort = models.FloatField(null=True, blank=True, verbose_name="编号")
     area = models.CharField(max_length=32, unique=True, verbose_name='区域')
 
     objects = models.Manager()
@@ -94,7 +94,7 @@ class Location(models.Model):
     class Meta:
         verbose_name = '位置信息'
         verbose_name_plural = verbose_name
-        ordering = ['sort_number']
+        ordering = ['sort']
 
     def __str__(self):
         return self.area
@@ -105,8 +105,8 @@ class Permit(models.Model):
     权限列表
     """
 
-    sort_number = models.FloatField(null=True, blank=True, verbose_name="编号")
-    title = models.CharField(max_length=32, unique=True, verbose_name='名称')
+    sort = models.FloatField(null=True, blank=True, verbose_name="编号")
+    name = models.CharField(max_length=32, unique=True, verbose_name='名称')
     mean = models.TextField(default="", blank=True, null=True, verbose_name="备注")
 
     objects = models.Manager()
@@ -114,10 +114,10 @@ class Permit(models.Model):
     class Meta:
         verbose_name = '授权列表'
         verbose_name_plural = verbose_name
-        ordering = ['sort_number']
+        ordering = ['sort']
 
     def __str__(self):
-        return self.title
+        return self.name
 
 
 class PermitLog(models.Model):

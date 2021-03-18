@@ -14,4 +14,4 @@ class DepartmentForSelectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Department
-        fields = ['id', 'simple_title']
+        fields = ['id', 'simple_name']

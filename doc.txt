@@ -13,7 +13,6 @@ npm run dev（npm run start）    运行项目
 cd frontend
 cnpm run build    打包
 
-cnpm i elements -ui -S
-cnpm install js-cookie
-
+cnpm install element-ui -S
+cnpm install axios -S
 
